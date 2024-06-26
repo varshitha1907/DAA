@@ -1,0 +1,122 @@
+computing binomial coefficient
+def binomial_coefficient(n, k):
+    if k > n:
+        return 0
+    if k == 0 or k == n:
+        return 1
+    
+    # Initialize a 2D list to store the values of C(n, k)
+    C = [[0] * (k + 1) for _ in range(n + 1)]
+    
+    # Compute the values using dynamic programming
+    for i in range(n + 1):
+        for j in range(min(i, k) + 1):
+            if j == 0 or j == i:
+                C[i][j] = 1
+            else:
+                C[i][j] = C[i - 1][j - 1] + C[i - 1][j]
+    
+    return C[n][k]
+
+# Example usage:
+n = 5
+k = 2
+result = binomial_coefficient(n, k)
+print(f"The binomial coefficient C({n}, {k}) is: {result}")
+
+
+
+Bellmanford Algorithm
+INF = float('inf')
+
+def bellman_ford(graph, source):
+    distances = {node: INF for node in graph}
+    distances[source] = 0
+    
+    # Relax edges repeatedly
+    for _ in range(len(graph) - 1):
+        for u in graph:
+            for v, weight in graph[u]:
+                if distances[u] + weight < distances[v]:
+                    distances[v] = distances[u] + weight
+    
+    # Check for negative weight cycles
+    for u in graph:
+        for v, weight in graph[u]:
+            if distances[u] + weight < distances[v]:
+                raise ValueError("Graph contains a negative weight cycle")
+    
+    return distances
+
+# Example usage:
+graph = {
+    'A': [('B', -1), ('C', 4)],
+    'B': [('C', 3), ('D', 2), ('E', 2)],
+    'C': [],
+    'D': [('B', 1), ('C', 5)],
+    'E': [('D', -3)]
+}
+source_node = 'A'
+distances = bellman_ford(graph, source_node)
+print("Shortest distances from", source_node, ":")
+for node, dist in distances.items():
+    print(f"To {node}: {dist}")
+
+Floyd Warshal Algorithm
+INF = float('inf')
+
+def floyd_warshall(graph):
+    dist = {v: {u: graph[v][u] if v != u else 0 for u in graph} for v in graph}
+    
+    for k in graph:
+        for i in graph:
+            for j in graph:
+                if dist[i][j] > dist[i][k] + dist[k][j]:
+                    dist[i][j] = dist[i][k] + dist[k][j]
+    
+    return dist
+
+# Example usage:
+graph = {
+    'A': {'A': 0, 'B': -1, 'C': 4},
+    'B': {'A': INF, 'B': 0, 'C': 3, 'D': 2, 'E': 2},
+    'C': {'A': INF, 'B': INF, 'C': 0, 'D': INF, 'E': INF},
+    'D': {'A': INF, 'B': 1, 'C': 5, 'D': 0, 'E': INF},
+    'E': {'A': INF, 'B': INF, 'C': INF, 'D': -3, 'E': 0}
+}
+all_pairs_distances = floyd_warshall(graph)
+print("Shortest paths between all pairs of vertices:")
+for start in graph:
+    print(f"From {start}:")
+    for end, dist in all_pairs_distances[start].items():
+        print(f"To {end}: {dist}")
+
+Meet in middle technique
+from itertools import product
+
+def meet_in_the_middle(nums, target):
+    n = len(nums)
+    half = n // 2
+    solutions = []
+    
+    # Generate all subsets of the first half
+    subsets1 = [sum(subset) for subset in product(nums[:half], repeat=half)]
+    
+    # Generate all subsets of the second half
+    subsets2 = [sum(subset) for subset in product(nums[half:], repeat=n - half)]
+    
+    # Check for pairs with sum equal to target
+    for s1 in subsets1:
+        for s2 in subsets2:
+            if s1 + s2 == target:
+                solutions.append((s1, s2))
+    
+    return solutions
+
+# Example usage:
+nums = [1, 2, 3, 4, 5]
+target_sum = 7
+results = meet_in_the_middle(nums, target_sum)
+print(f"Pairs of subsets with sum equal to {target_sum}:")
+for pair in results:
+    print(pair)
